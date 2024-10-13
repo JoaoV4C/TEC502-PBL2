@@ -3,23 +3,33 @@ import requests
 
 app = Flask(__name__)
 
-# Rota que se comunica com o servidor 1
-@app.route('/comunicar_com_servidor1', methods=['GET'])
-def comunicar_com_servidor1():
-    try:
-        # Faz a requisição GET para o servidor 1
-        response = requests.get('http://127.0.0.1:5000/resposta_de_servidor1')
-        # Pega a resposta do servidor 1
-        resposta_de_servidor1 = response.json() # Resposta em formato JSON
-       
-        return jsonify({'mensagem': 'Resposta do servidor 1', 'data': resposta_de_servidor1})
-    except requests.exceptions.RequestException as e:
-        return jsonify({'erro': 'Falha na comunicação com o servidor 1', 'detalhes': str(e)})
+# Rotas disponíveis no servidor 2
+rotas_servidor2 = ["Rota D", "Rota E", "Rota F"]
 
-# Rota que responde a requisições vindas do servidor 1
-@app.route('/resposta_de_servidor2', methods=['GET'])
-def resposta_de_servidor2():
-    return jsonify({'mensagem': 'Olá do servidor 2!', 'status': 'sucesso'})
+@app.route('/comprar_passagem', methods=['POST'])
+def comprar_passagem():
+    # Mostrar as rotas disponíveis do servidor 2
+    rotas = rotas_servidor2
+    print("Rotas disponíveis no Servidor 2:", rotas)
+
+    # Fazer requisição para o Servidor 1 para obter as rotas dele
+    try:
+        response = requests.get('http://127.0.0.1:5000/obter_rotas', headers={'From': 'servidor'})
+        if response.status_code == 200:
+            rotas_servidor1 = response.json().get("rotas", [])
+            return jsonify({
+                "mensagem": "Compra processada.",
+                "rotas_servidor2": rotas,
+                "rotas_servidor1": rotas_servidor1
+            }), 200
+        else:
+            return jsonify({"mensagem": "Erro ao chamar o Servidor 1", "status": response.status_code}), response.status_code
+    except requests.exceptions.RequestException as e:
+        return jsonify({"mensagem": f"Erro na requisição ao Servidor 1: {e}"}), 500
+
+@app.route('/obter_rotas', methods=['GET'])
+def obter_rotas():
+    return jsonify({"rotas": rotas_servidor2}), 200
 
 if __name__ == '__main__':
     app.run(port=5001)
