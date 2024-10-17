@@ -1,45 +1,47 @@
 import requests
+from menu import login, opcoes, comprar_passagem, listar_passagens
 
-def fazer_requisicao_servidor1():
+servidor_logado = None
+def login_servidor1(username, cpf):
+    global servidor_logado
     try:
-        response = requests.get('http://127.0.0.1:5000/obter_rotas', headers={'From': 'cliente'})
+        response = requests.post('http://127.0.0.1:5000/login', json = {'username': username, 'cpf': cpf})
         if response.status_code == 200:
             print("Resposta do Servidor 1:")
-            print(response.json())
+            servidor_logado = 1
         else:
-            print(f"Erro ao chamar o Servidor 1: {response.status_code}")
+            print(f"Erro ao fazer login no Servidor 1: {response.status_code}")
     except requests.exceptions.RequestException as e:
         print(f"Erro na requisição ao Servidor 1: {e}")
 
-def fazer_requisicao_servidor2():
+def login_servidor2(username, cpf):
+    global servidor_logado
     try:
-        response = requests.get('http://127.0.0.1:5001/obter_rotas', headers={'From': 'cliente'})
+        response = requests.post('http://127.0.0.1:5001/login', json = {'username': username, 'cpf': cpf})
         if response.status_code == 200:
             print("Resposta do Servidor 2:")
-            print(response.json())
+            servidor_logado = 2
         else:
-            print(f"Erro ao chamar o Servidor 2: {response.status_code}")
+            print(f"Erro ao fazer login no Servidor 2: {response.status_code}")
     except requests.exceptions.RequestException as e:
         print(f"Erro na requisição ao Servidor 2: {e}")
+        
+
 
 def main():
-    while True:
-        print("\nEscolha o servidor para fazer a requisição:")
-        print("1. Servidor 1")
-        print("2. Servidor 2")
-        print("3. Sair")
-        
-        opcao = input("Digite sua opção (1/2/3): ")
-        
-        if opcao == '1':
-            fazer_requisicao_servidor1()
-        elif opcao == '2':
-            fazer_requisicao_servidor2()
-        elif opcao == '3':
-            print("Saindo...")
+    opcao, username, cpf = login()
+    if opcao == '1':
+        login_servidor1(username, cpf)
+    elif opcao == "2":
+        login_servidor2(username, cpf)
+    while servidor_logado:
+        acao = opcoes()
+        if acao == 'comprar_passagem':
+            comprar_passagem()
+        elif acao == "listar_passagens":
+            listar_passagens()
+        elif acao == 'logout':
             break
-        else:
-            print("Opção inválida! Tente novamente.")
 
 if __name__ == '__main__':
     main()
