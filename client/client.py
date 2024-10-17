@@ -14,10 +14,10 @@ def login_servidor1(username, cpf):
     except requests.exceptions.RequestException as e:
         print(f"Erro na requisição ao Servidor 1: {e}")
 
-def login_servidor2():
+def login_servidor2(username, cpf):
     global servidor_logado
     try:
-        response = requests.get('http://127.0.0.1:5001/login', json = {'username': username, 'cpf': cpf})
+        response = requests.post('http://127.0.0.1:5001/login', json = {'username': username, 'cpf': cpf})
         if response.status_code == 200:
             print("Resposta do Servidor 2:")
             servidor_logado = 2

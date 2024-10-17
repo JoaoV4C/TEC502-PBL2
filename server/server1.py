@@ -60,5 +60,14 @@ def obter_rotas():
         print(f'Requisição de lsitagem de rotas recebida de {remetente}.\n')
     return jsonify({"rotas": rotas_servidor1, "remetente": remetente}), 200
 
+# Rota para mostrar os usuários online
+@app.route('/usuarios_online', methods=['GET'])
+def usuarios_online():
+    if usuarios_logados:
+        return jsonify({"usuarios_online": usuarios_logados}), 200
+    else:
+        return jsonify({"mensagem": "Nenhum usuário online no momento"}), 200
+
+
 if __name__ == '__main__':
     app.run(port=5000)

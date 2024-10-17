@@ -6,12 +6,33 @@ app = Flask(__name__)
 # Rotas disponíveis no servidor 2
 rotas_servidor2 = ["Rota D", "Rota E", "Rota F"]
 
+usuarios_logados = {}
+
+@app.route('/login', methods=["POST"])
+def login():
+    data = request.json
+    username = data.get('username')
+    cpf = data.get("cpf")
+    if username and cpf:
+        usuarios_logados[cpf] = username
+        return jsonify({"mensagem": "Login bem-sucedido", "cpf": cpf }), 200
+    else:
+        return jsonify({"mensagem": "Credenciais inválidas!",}), 200
+
 @app.route('/comprar_passagem', methods=['POST'])
 def comprar_passagem():
-    # Mostrar as rotas disponíveis do servidor 2
+    # Verifica se a requisição veio de um cliente ou outro servidor
+    remetente = request.headers.get('From', 'desconhecido')
+    
+    if remetente == 'cliente':
+        print("Requisição de compra recebida do cliente.")
+    else:
+        print(f"Requisição recebida de {remetente}.")
+    
+    # Mostrar as rotas disponíveis no servidor 2
     rotas = rotas_servidor2
     print("Rotas disponíveis no Servidor 2:", rotas)
-
+    
     # Fazer requisição para o Servidor 1 para obter as rotas dele
     try:
         response = requests.get('http://127.0.0.1:5000/obter_rotas', headers={'From': 'servidor'})
@@ -19,6 +40,7 @@ def comprar_passagem():
             rotas_servidor1 = response.json().get("rotas", [])
             return jsonify({
                 "mensagem": "Compra processada.",
+                "remetente": remetente,  # Informar quem enviou a requisição
                 "rotas_servidor2": rotas,
                 "rotas_servidor1": rotas_servidor1
             }), 200
@@ -29,7 +51,21 @@ def comprar_passagem():
 
 @app.route('/obter_rotas', methods=['GET'])
 def obter_rotas():
-    return jsonify({"rotas": rotas_servidor2}), 200
+    # Verifica o remetente da requisição
+    remetente = request.headers.get('from', 'desconhecido')
+    if remetente == 'cliente':
+        print('Requisição de listagem de rotas recebida do cliente.\n')
+    else:
+        print(f'Requisição de listagem de rotas recebida de {remetente}.\n')
+    return jsonify({"rotas": rotas_servidor2, "remetente": remetente}), 200
+
+# Rota para mostrar os usuários online
+@app.route('/usuarios_online', methods=['GET'])
+def usuarios_online():
+    if usuarios_logados:
+        return jsonify({"usuarios_online": usuarios_logados}), 200
+    else:
+        return jsonify({"mensagem": "Nenhum usuário online no momento"}), 200
 
 if __name__ == '__main__':
     app.run(port=5001)
