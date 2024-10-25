@@ -41,7 +41,7 @@ def comprar_passagem():
             rotas_servidor2 = response.json().get("rotas", [])
             return jsonify({
                 "mensagem": "Compra processada.",
-                "remetente": remetente, # Informar quem enviou a requisiçaõ
+                "remetente": remetente, # Informar quem enviou a requisição
                 "rotas_servidor1": rotas,
                 "rotas_servidor2": rotas_servidor2
             }), 200
