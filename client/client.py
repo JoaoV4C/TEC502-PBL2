@@ -1,5 +1,5 @@
 import requests
-from menu import login, menu, buy_ticket, listar_passagens
+from menu import login, menu, buy_ticket, confirm_purchase, listar_passagens
 
 servidor_logado = None
 def login_servidor1(username, cpf):
@@ -27,9 +27,12 @@ def login_servidor2(username, cpf):
         print(f"Erro na requisição ao Servidor 2: {e}")
         
         
-def comprar_passagem():
+def comprar_passagem(cpf):
     try:
-        headers = {'From':'cliente'}
+        headers = {
+            'From':'cliente',
+            'Cliente-cpf': cpf 
+        }
         if servidor_logado == 1:
             response = requests.get('http://127.0.0.1:5000/cidades', headers=headers)
         elif servidor_logado == 2:
@@ -57,16 +60,30 @@ def comprar_passagem():
                 if response.status_code == 200:
                     resposta_json = response.json()
                     melhor_rota = resposta_json.get('melhor_rota')
+                    voos_necessarios = resposta_json.get("voos_necessarios", [])
+
                     if melhor_rota:
                         print("Melhor rota encontrada:")
                         print("Cidades:", ", ".join(melhor_rota))  # Exibe as cidades da melhor rota
-                                    # Exibir os voos necessários
-                    voos_necessarios = resposta_json.get("voos_necessarios", [])
-                    if voos_necessarios:
                         print("\nVoos necessários:")
                         for voo in voos_necessarios:
-                            print(f'Origem: {voo['_place_from']} --> destino: {voo['_place_to']}')
-                        
+                            origem = voo["_place_from"]
+                            destino = voo["_place_to"]
+                            print(f'Origem: {origem} --> destino: {destino}')
+                            
+                        # Pergunta se o usuário deseja comprar a passagem
+                        confirmation = confirm_purchase()
+            
+                        # Envia confirmação de compra para o servidor
+                        confirmation_data = {'confirmacao': confirmation}
+                        print(confirmation_data)
+                        confirm_response = requests.post('http://127.0.0.1:5001/confirmar_compra', json=confirmation_data, headers=headers)
+                        if confirm_response.status_code == 200:
+                            resposta_json = confirm_response.json()
+                            mensagem_confirmacao = resposta_json.get("mensagem")
+                            print(mensagem_confirmacao)
+                            
+                            
                 elif response.status_code == 404:
                     print("Erro: Nenhuma rota disponível.")  
         
@@ -102,8 +119,8 @@ def run_client():
         print("to aqui ???")
         match opcao:
             case "1":
-                comprar_passagem()
-            case "2":
+                comprar_passagem(cpf)
+            case "2":   
                 listar_passagens()
             case "3":
                 logged = False

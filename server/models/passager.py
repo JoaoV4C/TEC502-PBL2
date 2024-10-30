@@ -40,3 +40,6 @@ class Passager:
             self._tickets.remove(ticket)
         else:
             print("Ticket not found.")
+            
+    def __repr__(self):
+        return f"Passager(username={self._name}, cpf={self._cpf})"

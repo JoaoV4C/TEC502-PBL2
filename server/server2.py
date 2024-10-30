@@ -1,6 +1,10 @@
 from flask import Flask, jsonify, request
 import requests
 from mocks.mocksServer2 import *
+from models.passager import Passager
+from models.ticket import Ticket
+from models.airport import Airport
+from models.flight import Flight
 
 app = Flask(__name__)
 
@@ -15,7 +19,8 @@ def login():
     username = data.get('username')
     cpf = data.get("cpf")
     if username and cpf:
-        usuarios_logados[cpf] = username
+        passager = Passager(username, cpf)
+        usuarios_logados[cpf] = passager
         return jsonify({"mensagem": "Login bem-sucedido", "cpf": cpf }), 200
     else:
         return jsonify({"mensagem": "Credenciais inválidas!",}), 200
@@ -27,12 +32,36 @@ def cidades():
     cidades_disponiveis = [aeroporto.name for aeroporto in airport_list]
     # Retorna a lista de cidades em formato JSON
     return jsonify({"Cidades": cidades_disponiveis}), 200
-    
-    
+
+# Armazena dados de sessão temporariamente
+session_data = {}    
+
+@app.route('/confirmar_compra', methods=["POST",])
+def confirmar_compra():
+    dados = request.json
+    confirmacao = dados.get('confirmacao')
+    cpf_cliente = request.headers.get("Cliente-cpf") # Recebe o CPF para identificação
+    if not confirmacao:
+        return jsonify({"mensagem": "Confirmação não fornecida!"}), 400
+    if cpf_cliente not in session_data:
+        return jsonify({"mensagem": "Cliente não encontrado na sessão!"}), 404
+    cliente_data = session_data.pop(cpf_cliente) # Recupera e remove os dados do cliente
+    flights_needed = cliente_data["flights_needed"]
+
+    if cpf_cliente in usuarios_logados:    
+        print("Teste")
+        passager = usuarios_logados[cpf_cliente]
+        print(passager)
+        send_client = reserve_flight(passager, flights_needed)
+        return jsonify({'mensagem': 'Compra confirmada com sucesso!'}), 200
+    return jsonify({"mensagem": "Erro ao confirmar compra!"}), 500
+
 @app.route('/comprar_passagem', methods=['POST'])
 def comprar_passagem():
     # Verifica se a requisição veio de um cliente ou outro servidor
     remetente = request.headers.get('From', 'desconhecido')
+    cpf_cliente = request.headers.get("Cliente-cpf") # Recebe o CPF do cliente
+    
     
     if remetente == 'cliente':
         dados = request.json
@@ -43,16 +72,25 @@ def comprar_passagem():
         
         if not possible_routes:
             return jsonify({"mensagem": "Nenhuma rota disponível entre os destinos fornecidos.",}), 404
-        best_route = get_best_route(possible_routes)
-        
-        flights_needed = list_flights_needed(best_route)
-        
-        response_data = {
-            "mensagem": "Melhor rota encontrada.",
-            "melhor_rota": best_route,
-            "voos_necessarios": [flight.__dict__ for flight in flights_needed]  # Converte para dicionário
-        }
-        return jsonify(response_data), 200
+        else:
+            best_route = get_best_route(possible_routes)
+            flights_needed = list_flights_needed(best_route)
+            
+            # Armazena dados temporários do cliente
+            session_data[cpf_cliente]={
+                'origem': origem,
+                'destino': destino,
+                'best_route': best_route,
+                'flights_needed': flights_needed,
+            }
+            
+            
+            response_data = {
+                "mensagem": "Melhor rota encontrada.",
+                "melhor_rota": best_route,
+                "voos_necessarios": [flight.__dict__ for flight in flights_needed]  # Converte para dicionário
+            }
+            return jsonify(response_data), 200
             
 
     else:
