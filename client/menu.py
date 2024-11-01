@@ -1,20 +1,16 @@
-#servidor_logado = None # Variável global para armazenar o servidor lgoado
-
-def login():
-    global servidor_logado
+def choose_server():
     while True:
         print("\nEscolha o servidor para fazer login:")
         print("1. Servidor 1")
         print("2. Servidor 2")
-        print("3. Sair")
+        print("3. Servidor 3")
         opcao = input("Digite sua opção (1/2/3): ")
-        if opcao in ['1', '2']:
+        if opcao in ['1', '2', '3']:
             username = input("Digite o nome de usuário: ").strip()
             cpf = input("Digite o CPF: ")
             return opcao, username, cpf
-        elif opcao == '3':
+        elif opcao == '4':
             print("Saindo...")
-            servidor_logado = None
             return None, None, None
         else:
             print("Opção inválida! Tente novamente.\n")
@@ -35,7 +31,6 @@ def opcoes():
     
     elif opcao == '3':
         print("Fazendo logout...")
-        servidor_logado = None
         return 'logout'
     
     else:
