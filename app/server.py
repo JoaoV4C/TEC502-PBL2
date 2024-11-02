@@ -1,29 +1,58 @@
+import os
 from flask import Flask, request, render_template, redirect, url_for
-from flask_login import login_user, logout_user
+from flask_login import UserMixin, login_required, login_user, logout_user, LoginManager
 import json
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'secret'
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+class User(UserMixin):
+    def __init__(self, id, name, cpf):
+        self.id = id
+        self.name = name
+        self.cpf = cpf
+
+@login_manager.user_loader
+def load_user(user_id):
+    if os.path.exists('../app/data/passagers.json'):
+        with open('../app/data/passagers.json', 'r', encoding='utf-8') as file:
+            passagers = json.load(file)
+        for passager in passagers:
+            if passager['id'] == int(user_id):
+                return User(passager['id'], passager['name'], passager['cpf'])
+    return None
 
 @app.route('/', methods=["GET"])
+@login_required
 def index():
     return render_template("home.html")
 
-@app.route('/login',methods=["POST","GET"])
+@app.route('/login', methods=["POST", "GET"])
 def login():
     if request.method == "POST":
         cpf = request.form.get("cpf")
-
-        with open('../app/data/passagers.json', 'r', encoding='utf-8') as file:
-            passagers = json.load(file)
-            
-        for passager in passagers:
-            if passager['cpf'] == cpf:
-                login_user(passager)
-                return redirect(url_for('home.html'))
-            else:
-                return render_template("login.html", error="CPF não cadastrado!")
-
+        if os.path.exists('../app/data/passagers.json'):
+            with open('../app/data/passagers.json', 'r', encoding='utf-8') as file:
+                passagers = json.load(file)
+                
+            for passager in passagers:
+                if passager['cpf'] == cpf:
+                    user = User(passager['id'], passager['name'], passager['cpf'])
+                    login_user(user)
+                    return redirect(url_for('index'))
+                    
+        return render_template("login.html", error="CPF não encontrado.")
+        
     return render_template("login.html")
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
 
 @app.route('/register', methods=["POST","GET"])
 def register():
@@ -31,25 +60,27 @@ def register():
         name = request.form.get("name")
         cpf = request.form.get("cpf")
 
-        with open('../app/data/passagers.json', 'r', encoding='utf-8') as file:
-            passagers = json.load(file)
-        
+        if os.path.exists('../app/data/passagers.json'):
+            with open('../app/data/passagers.json', 'r', encoding='utf-8') as file:
+                passagers = json.load(file)
 
-        for passager in passagers:
-            if passager['cpf'] == cpf:
-                return render_template("register.html", error="CPF já cadastrado!")
-        
+            for passager in passagers:
+                if passager['cpf'] == cpf:
+                    return render_template("register.html", error="CPF já cadastrado!")
+
+            new_passager = {"id": passagers[-1]["id"] + 1,"name": name, "cpf": cpf}
+            passagers.append(new_passager)
         # Adicionar novo passageiro
-        new_passager = {"name": name, "cpf": cpf}
-        passagers.append(new_passager)
-
-        
+        else:
+            passagers = [{"id": 1, "name": name, "cpf": cpf}]
+ 
         with open('../app/data/passagers.json', 'w', encoding='utf-8') as file:
             json.dump(passagers, file, ensure_ascii=False)
 
         return redirect(url_for('login'))
         
     return render_template("register.html")
+
 
 
 # @app.route('/comprar_passagem', methods=['POST'])
