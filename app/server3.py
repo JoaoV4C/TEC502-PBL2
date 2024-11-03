@@ -4,11 +4,11 @@ import requests
 from flask import Flask, flash, request, render_template, redirect, url_for
 from flask_login import UserMixin, login_required, login_user, logout_user, LoginManager, current_user
 
-PATH = "../app/data/server2/"
+PATH = "../app/data/server3/"
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret2'
-app.config['SESSION_COOKIE_NAME'] = 'session_server2'
+app.config['SECRET_KEY'] = 'secret3'
+app.config['SESSION_COOKIE_NAME'] = 'session_server3'
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -100,7 +100,7 @@ def get_flights():
         with open(f'{PATH}/flights.json', 'r', encoding='utf-8') as file:
             flights = json.load(file)
         for flight in flights:
-            flight['server'] = 2
+            flight['server'] = 3
         return flights
     return []
 
@@ -123,13 +123,13 @@ def allocate_seat(id):
 def buy_ticket(id):
     server = request.args.get('server', type=int)
     try:
-        if server == 2:
+        if server == 3:
             flight = allocate_seat(id)
         elif server == 1:
             response = requests.post(f'http://127.0.0.1:5000/allocate-seat/{id}', timeout=0.5)
             flight = response.json()
-        elif server == 3:
-            response = requests.post(f'http://127.0.0.1:5002/allocate-seat/{id}', timeout=0.5)
+        elif server == 2:
+            response = requests.post(f'http://127.0.0.1:5001/allocate-seat/{id}', timeout=0.5)
             flight = response.json()
         
         if flight:
@@ -167,13 +167,13 @@ def get_other_servers_flights():
         print(f"Ocorreu um erro na requisição ao servidor 1: {e}")
     
     try:
-        response_server3 = requests.get('http://127.0.0.1:5002/flights', timeout=0.5)
-        response_server3.raise_for_status()  # Levanta uma exceção para códigos de status HTTP de erro
-        response.extend(response_server3.json())
+        response_server2 = requests.get('http://127.0.0.1:5001/flights', timeout=0.5)
+        response_server2.raise_for_status()  # Levanta uma exceção para códigos de status HTTP de erro
+        response.extend(response_server2.json())
     except requests.exceptions.Timeout:
-        print("A requisição ao servidor 3 excedeu o tempo limite.")
+        print("A requisição ao servidor 2 excedeu o tempo limite.")
     except requests.exceptions.RequestException as e:
-        print(f"Ocorreu um erro na requisição ao servidor 3: {e}")
+        print(f"Ocorreu um erro na requisição ao servidor 2: {e}")
 
     return response
 
@@ -196,4 +196,4 @@ def my_flights():
     return render_template("my-flights.html", flights=my_flights)
     
 if __name__ == '__main__':
-    app.run(port=5001, debug=True)
+    app.run(port=5002, debug=True)
