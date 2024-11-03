@@ -18,7 +18,7 @@
     
     <h2 style="text-align: center; margin-top: 50px;">Flights</h2>
     <div style="display: flex; justify-content: center;"></div>
-        <form method="get" action="/filter-flights" style="text-align: center; background-color: #f2f2f2; padding: 20px; border-radius: 10px;">
+        <form method="post" action="/filter-flights" style="text-align: center; background-color: #f2f2f2; padding: 20px; border-radius: 10px;">
             <label for="place_from" style="margin-right: 10px;">Place From:</label>
             <input type="text" id="place_from" name="place_from" style="margin-right: 20px; padding: 5px; border-radius: 5px; border: 1px solid #ccc;" required>
             <label for="place_to" style="margin-right: 10px;">Place To:</label>
@@ -32,6 +32,7 @@
                 <th>Flight Number</th>
                 <th>From</th>
                 <th>To</th>
+                <th>Server</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -40,7 +41,8 @@
             <tr>
                 <td>{{ flight.id }}</td>
                 <td>{{ flight.place_from }}</td>
-                <td>{{ flight.place_to }}</td>
+                <td>{{ flight.place_to}}</td>
+                <td>{{ flight.server}}</td>
                 <td><button class="buy-button">Buy</button></td>
             </tr>
             {% endfor %}

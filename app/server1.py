@@ -31,19 +31,18 @@ def load_user(user_id):
                 return User(passager['id'], passager['name'], passager['cpf'])
     return None
 
-@app.route('/', methods=["GET", "POST"])
+@app.route('/', methods=["GET"])
 @login_required
 def index():
     return render_template("home.html", flights = get_all_flights())
 
-@app.route('/filter-flights', methods=["GET", "POST"])
+@app.route('/filter-flights', methods=["POST"])
 @login_required
 def filter_flights():
-    if request.method == "POST":
-        place_from = request.form.get("place_from")
-        place_to = request.form.get("place_to")
-
-    return render_template("home.html", flights = get_all_flights(place_from, place_to))
+    place_from = request.form.get("place_from")
+    place_to = request.form.get("place_to")
+    flights = get_all_flights(place_from, place_to)
+    return render_template("home.html", flights = flights)
 
 @app.route('/login', methods=["POST", "GET"])
 def login():
@@ -111,6 +110,8 @@ def get_flights():
     if os.path.exists('../app/data/server1/flights.json'):
         with open('../app/data/server1/flights.json', 'r', encoding='utf-8') as file:
             flights = json.load(file)
+            for flight in flights:
+                flight['server'] = 1
         return flights
     return []
 
@@ -141,7 +142,7 @@ def get_all_flights(place_from=None, place_to=None):
     other_server_flights = get_other_servers_flights()
     flights.extend(other_server_flights)
     if place_from and place_to:
-        flights = [flight for flight in flights if flight['place_from'] == place_from and flight['place_to'] == place_to]
+        flights = [flight for flight in flights if flight['place_from'].lower() == place_from.lower() and flight['place_to'].lower() == place_to.lower()]
     return flights
     
 if __name__ == '__main__':

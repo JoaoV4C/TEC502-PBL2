@@ -29,14 +29,18 @@ def load_user(user_id):
                 return User(passager['id'], passager['name'], passager['cpf'])
     return None
 
-@app.route('/', methods=["GET", "POST"])
+@app.route('/', methods=["GET"])
 @login_required
 def index():
-    if request.method == "GET":
-        place_from = request.form.get("place_from")
-        place_to = request.form.get("place_to")
-
     return render_template("home.html", flights = get_all_flights())
+
+@app.route('/filter-flights', methods=["POST"])
+@login_required
+def filter_flights():
+    place_from = request.form.get("place_from")
+    place_to = request.form.get("place_to")
+    flights = get_all_flights(place_from, place_to)
+    return render_template("home.html", flights = flights)
 
 @app.route('/login', methods=["POST", "GET"])
 def login():
@@ -94,40 +98,39 @@ def get_flights():
     if os.path.exists('../app/data/server2/flights.json'):
         with open('../app/data/server2/flights.json', 'r', encoding='utf-8') as file:
             flights = json.load(file)
+            for flight in flights:
+                flight['server'] = 2
         return flights
     return []
 
-def get_server1_flights():
+def get_other_servers_flights():
+    response = []
     try:
-        response = requests.get('http://127.0.0.1:5000/flights', timeout=0.5)
-        response.raise_for_status()  # Levanta uma exceção para códigos de status HTTP de erro
-        return response.json()
+        response_server1 = requests.get('http://127.0.0.1:5000/flights', timeout=0.5)
+        response_server1.raise_for_status()  # Levanta uma exceção para códigos de status HTTP de erro
+        response.extend(response_server1.json())
     except requests.exceptions.Timeout:
         print("A requisição ao servidor 1 excedeu o tempo limite.")
     except requests.exceptions.RequestException as e:
         print(f"Ocorreu um erro na requisição ao servidor 1: {e}")
-    return []
-
-def get_server3_flights():
+    
     try:
-        response = requests.get('http://127.0.0.1:5002/flights', timeout=0.5)
-        response.raise_for_status()  # Levanta uma exceção para códigos de status HTTP de erro
-        return response.json()
+        response_server3 = requests.get('http://127.0.0.1:5002/flights', timeout=0.5)
+        response_server3.raise_for_status()  # Levanta uma exceção para códigos de status HTTP de erro
+        response.extend(response_server3.json())
     except requests.exceptions.Timeout:
         print("A requisição ao servidor 3 excedeu o tempo limite.")
     except requests.exceptions.RequestException as e:
         print(f"Ocorreu um erro na requisição ao servidor 3: {e}")
-    return []
 
-def get_all_flights():
+    return response
+
+def get_all_flights(place_from=None, place_to=None):
     flights = get_flights()
-    server1_flights = get_server1_flights()
-    if server1_flights:
-        flights.extend(server1_flights)
-
-    server3_flights = get_server3_flights()
-    if server3_flights:
-        flights.extend(server3_flights)
+    other_server_flights = get_other_servers_flights()
+    flights.extend(other_server_flights)
+    if place_from and place_to:
+        flights = [flight for flight in flights if flight['place_from'].lower() == place_from.lower() and flight['place_to'].lower() == place_to.lower()]
     return flights
 
 @app.route("/my-flights", methods=["GET"])
@@ -140,9 +143,5 @@ def my_flights():
         my_flights = [flight for flight in flights if flight['passager_id'] == current_user.id]
     return render_template("my-flights.html", flights=my_flights)
     
-def filter_flights():
-    flights = flights()
-    response = requests.get('http://127.0.0.1:5001/flights')
-
 if __name__ == '__main__':
     app.run(port=5001, debug=True)
