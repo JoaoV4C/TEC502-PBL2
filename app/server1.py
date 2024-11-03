@@ -4,6 +4,7 @@ import requests
 from flask import Flask, request, render_template, redirect, url_for
 from flask_login import UserMixin, login_required, login_user, logout_user, LoginManager, current_user
 
+PATH = "../app/data/server1/"
 # PORTS = [5000, 5001, 5002]
 # FILE_NAME = os.path.basename(__file__)
 
@@ -23,8 +24,8 @@ class User(UserMixin):
     
 @login_manager.user_loader
 def load_user(user_id):
-    if os.path.exists('../app/data/server1/passagers.json'):
-        with open('../app/data/server1/passagers.json', 'r', encoding='utf-8') as file:
+    if os.path.exists(f'{PATH}/passagers.json'):
+        with open(f'{PATH}/passagers.json', 'r', encoding='utf-8') as file:
             passagers = json.load(file)
         for passager in passagers:
             if passager['id'] == int(user_id):
@@ -48,8 +49,8 @@ def filter_flights():
 def login():
     if request.method == "POST":
         cpf = request.form.get("cpf")
-        if os.path.exists('../app/data/server1/passagers.json'):
-            with open('../app/data/server1/passagers.json', 'r', encoding='utf-8') as file:
+        if os.path.exists(f'{PATH}/passagers.json'):
+            with open(f'{PATH}/passagers.json', 'r', encoding='utf-8') as file:
                 passagers = json.load(file)
                 
             for passager in passagers:
@@ -74,8 +75,8 @@ def register():
         name = request.form.get("name")
         cpf = request.form.get("cpf")
 
-        if os.path.exists('../app/data/server1/passagers.json'):
-            with open('../app/data/server1/passagers.json', 'r', encoding='utf-8') as file:
+        if os.path.exists(f'{PATH}/passagers.json'):
+            with open(f'{PATH}/passagers.json', 'r', encoding='utf-8') as file:
                 passagers = json.load(file)
 
             for passager in passagers:
@@ -88,7 +89,7 @@ def register():
         else:
             passagers = [{"id": 1, "name": name, "cpf": cpf}]
  
-        with open('../app/data/server1/passagers.json', 'w', encoding='utf-8') as file:
+        with open(f'{PATH}/passagers.json', 'w', encoding='utf-8') as file:
             json.dump(passagers, file, ensure_ascii=False)
 
         return redirect(url_for('login'))
@@ -99,21 +100,65 @@ def register():
 @login_required
 def my_flights():
     my_flights = []
-    if os.path.exists('../app/data/server1/tickets.json'):
-        with open('../app/data/server1/tickets.json', 'r', encoding='utf-8') as file:
+    if os.path.exists(f'{PATH}/tickets.json'):
+        with open(f'{PATH}/tickets.json', 'r', encoding='utf-8') as file:
             flights = json.load(file)
         my_flights = [flight for flight in flights if flight['passager_id'] == current_user.id]
     return render_template("my-flights.html", flights=my_flights)
     
 @app.route('/flights', methods=["GET"])
 def get_flights():
-    if os.path.exists('../app/data/server1/flights.json'):
-        with open('../app/data/server1/flights.json', 'r', encoding='utf-8') as file:
+    if os.path.exists(f'{PATH}/flights.json'):
+        with open(f'{PATH}/flights.json', 'r', encoding='utf-8') as file:
             flights = json.load(file)
-            for flight in flights:
-                flight['server'] = 1
+        for flight in flights:
+            flight['server'] = 1
         return flights
     return []
+
+@app.route('/allocate-seat/<int:id>', methods=["POST"])
+def allocate_seat(id):
+    if os.path.exists(f'{PATH}/flights.json'):
+        with open(f'{PATH}/flights.json', 'r', encoding='utf-8') as file:
+            flights = json.load(file)
+        for flight in flights:
+            if flight['id'] == id:
+                flight['available_seats'] -= 1
+                with open(f'{PATH}/flights.json', 'w', encoding='utf-8') as file:
+                    json.dump(flights, file, ensure_ascii=False)
+                return flight
+    return None
+
+@app.route('/buy-ticket/<int:id>', methods=["POST"])
+@login_required
+def buy_ticket(id):
+    server = request.args.get('server', type=int)
+    try:
+        if server == 1:
+            flight = allocate_seat(id)
+        elif server == 2:
+            response = requests.post(f'http://127.0.0.1:5001/allocate-seat/{id}', timeout=0.5)
+            flight = response.json()
+        elif server == 3:
+            response = requests.post(f'http://127.0.0.1:5002/allocate-seat/{id}', timeout=0.5)
+            flight = response.json()
+
+        if os.path.exists(f'{PATH}/tickets.json'):
+            with open(f'{PATH}/tickets.json', 'r', encoding='utf-8') as file:
+                tickets = json.load(file)
+                tickets.append({"id":tickets[-1]["id"] + 1,"passager_id": current_user.id, "flight_id": id,"place_from": flight["place_from"],"place_to": flight["place_to"] ,"server": server})
+        else:
+            tickets = [{"id": 1 ,"passager_id": current_user.id, "flight_id": id,"place_from": flight["place_from"],"place_to": flight["place_to"] ,"server": server}]
+
+        with open(f'{PATH}/tickets.json', 'w', encoding='utf-8') as file:
+            json.dump(tickets, file, ensure_ascii=False)
+
+    except requests.exceptions.Timeout:
+        print(f"A requisição ao servidor {server} excedeu o tempo limite.")
+    except requests.exceptions.RequestException as e:
+        print(f"Ocorreu um erro na requisição ao servidor {server}: {e}")
+    
+    return redirect(url_for('index'))
 
 def get_other_servers_flights():
     response = []

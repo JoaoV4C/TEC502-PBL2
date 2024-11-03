@@ -33,6 +33,7 @@
                 <th>From</th>
                 <th>To</th>
                 <th>Server</th>
+                <th>Available Seats</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -43,7 +44,12 @@
                 <td>{{ flight.place_from }}</td>
                 <td>{{ flight.place_to}}</td>
                 <td>{{ flight.server}}</td>
-                <td><button class="buy-button">Buy</button></td>
+                <td>{{ flight.available_seats}}</td>
+                <td>
+                    <form action="/buy-ticket/{{ flight.id }}?server={{ flight.server }}" method="POST">
+                        <button class="buy-button" type="submit">Buy</button>
+                    </form>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
