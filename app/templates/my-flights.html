@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Flights</title>
+    <link rel="stylesheet" href="/static/home.css">
+</head>
+<body>
+    <nav>
+        <a >{{ current_user.name }}</a>
+        <ul>
+            <li><a href="/" >Home</a></li>
+            <li><a href="/my-flights" >My Flights</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+    </nav>
+    
+    <h2 style="text-align: center; margin-top: 50px;">My Flights</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Ticket Number</th>
+                <th>Flight Number</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Server</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for flight in flights %}
+            <tr>
+                <td>{{ flight.id }}</td>
+                <td>{{ flight.flight_id }}</td>
+                <td>{{ flight.place_from }}</td>
+                <td>{{ flight.place_to }}</td>
+                <td>{{ flight.server }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

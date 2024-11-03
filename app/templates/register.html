@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro</title>
+    <link rel="stylesheet" href="/static/forms.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Register</h2>
+        <form action="/register" method="post">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="cpf">CPF:</label>
+                <input type="cpf" id="cpf" name="cpf" required>
+            </div>
+            <button type="submit">Register</button>
+            {% if error %}
+                <i id = "error" name ="error">{{ error }}</i>
+            {% endif %}
+            <div class="register-link">
+                <p>Already have an account? <a href="/login">Login here</a></p>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

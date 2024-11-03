@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="/static/forms.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Login</h2>
+        <form action="/login" method="post">
+            <div class="form-group">
+                <label for="cpf">CPF:</label>
+                <input type="cpf" id="cpf" name="cpf" required>
+            </div>
+            <button type="submit">Login</button>
+            {% if error %}
+                <i id="error" name ="error">{{ error }}</i>
+            {% endif %}
+            <div class="register-link">
+                <p>Don't have an account? <a href="/register">Register here</a></p>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

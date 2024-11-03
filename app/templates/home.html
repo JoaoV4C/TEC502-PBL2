@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight List</title>
+    <link rel="stylesheet" href="/static/home.css">
+</head>
+<body>
+    <nav>
+        <a >{{ current_user.name }}</a>
+        <ul>
+            <li><a href="/" >Home</a></li>
+            <li><a href="/my-flights" >My Flights</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+    </nav>
+    
+    <h2 style="text-align: center; margin-top: 50px;">Flights</h2>
+    <div style="display: flex; justify-content: center;"></div>
+        <form method="post" action="/filter-flights" style="text-align: center; background-color: #f2f2f2; padding: 20px; border-radius: 10px;">
+            <label for="place_from" style="margin-right: 10px;">Place From:</label>
+            <input type="text" id="place_from" name="place_from" style="margin-right: 20px; padding: 5px; border-radius: 5px; border: 1px solid #ccc;" required>
+            <label for="place_to" style="margin-right: 10px;">Place To:</label>
+            <input type="text" id="place_to" name="place_to" style="margin-right: 20px; padding: 5px; border-radius: 5px; border: 1px solid #ccc;" required>
+            <button type="submit" style="padding: 5px 10px; border-radius: 5px; background-color: #4CAF50; color: white; border: none;">Submit</button>
+        </form>
+    </div>   
+    <table>
+        <thead>
+            <tr>
+                <th>Flight Number</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Server</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for flight in flights %}
+            <tr>
+                <td>{{ flight.id }}</td>
+                <td>{{ flight.place_from }}</td>
+                <td>{{ flight.place_to}}</td>
+                <td>{{ flight.server}}</td>
+                <td><button class="buy-button">Buy</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

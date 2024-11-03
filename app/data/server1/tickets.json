@@ -1,0 +1,42 @@
+[
+    {
+        "id": 1,
+        "passager_id": 1,
+        "flight_id": 3,
+        "place_from": "São Luís",
+        "place_to": "Natal",
+        "server": 1
+    },
+    {
+        "id": 2,
+        "passager_id": 1,
+        "flight_id": 7,
+        "place_from": "Fortaleza",
+        "place_to": "São Luís",
+        "server": 1
+    },
+    {
+        "id": 3,
+        "passager_id": 1,
+        "flight_id": 2,
+        "place_from": "São Luís",
+        "place_to": "Fortaleza",
+        "server": 1
+    },
+    {
+        "id": 4,
+        "passager_id": 1,
+        "flight_id": 9,
+        "place_from": "Fortaleza",
+        "place_to": "Natal",
+        "server": 1
+    },
+    {
+        "id": 5,
+        "passager_id": 1,
+        "flight_id": 5,
+        "place_from": "Teresina",
+        "place_to": "Fortaleza",
+        "server": 1
+    }
+]
