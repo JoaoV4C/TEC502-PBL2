@@ -1,60 +1,12 @@
-[{
-    "id": 1,
-    "place_from": "Natal",
-    "place_to": "Fortaleza",
-    "available_seats": 30
-},
-{
-    "id": 2,
-    "place_from": "Natal",
-    "place_to": "João Pessoa",
-    "available_seats": 30
-},
-{
-    "id": 3,
-    "place_from": "Natal",
-    "place_to": "Recife",
-    "available_seats": 30
-},
-{
-    "id": 4,
-    "place_from": "João Pessoa",
-    "place_to": "Natal",
-    "available_seats": 30
-},
-{
-    "id": 5,
-    "place_from": "João Pessoa",
-    "place_to": "Recife",
-    "available_seats": 30
-},
-{
-    "id": 6,
-    "place_from": "João Pessoa",
-    "place_to": "Maceió",
-    "available_seats": 30
-},
-{
-    "id": 7,
-    "place_from": "Recife",
-    "place_to": "Fortaleza",
-    "available_seats": 30
-},
-{
-    "id": 8,
-    "place_from": "Recife",
-    "place_to": "Natal",
-    "available_seats": 30
-},
-{
-    "id": 9,
-    "place_from": "Recife",
-    "place_to": "João Pessoa",
-    "available_seats": 30
-},
-{
-    "id": 10,
-    "place_from": "Recife",
-    "place_to": "Maceió",
-    "available_seats": 30
-}]
+[
+    {"id": 1, "place_from": "Natal", "place_to": "Fortaleza", "available_seats": 10},
+    {"id": 2, "place_from": "Natal", "place_to": "João Pessoa", "available_seats": 10},
+    {"id": 3, "place_from": "Natal", "place_to": "Recife", "available_seats": 10},
+    {"id": 4, "place_from": "João Pessoa", "place_to": "Natal", "available_seats": 10},
+    {"id": 5, "place_from": "João Pessoa", "place_to": "Recife", "available_seats": 10},
+    {"id": 6, "place_from": "João Pessoa", "place_to": "Maceió", "available_seats": 10},
+    {"id": 7, "place_from": "Recife", "place_to": "Fortaleza", "available_seats": 10},
+    {"id": 8, "place_from": "Recife", "place_to": "Natal", "available_seats": 10},
+    {"id": 9, "place_from": "Recife", "place_to": "João Pessoa", "available_seats": 10},
+    {"id": 10, "place_from": "Recife", "place_to": "Maceió", "available_seats": 10}
+]
