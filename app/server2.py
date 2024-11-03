@@ -1,7 +1,7 @@
 import os
 import json
 import requests
-from flask import Flask, request, render_template, redirect, url_for
+from flask import Flask, flash, request, render_template, redirect, url_for
 from flask_login import UserMixin, login_required, login_user, logout_user, LoginManager, current_user
 
 PATH = "../app/data/server2/"
@@ -111,10 +111,11 @@ def allocate_seat(id):
             flights = json.load(file)
         for flight in flights:
             if flight['id'] == id:
-                flight['available_seats'] -= 1
-                with open(f'{PATH}/flights.json', 'w', encoding='utf-8') as file:
-                    json.dump(flights, file, ensure_ascii=False)
-                return flight
+                if flight['available_seats'] > 0:
+                    flight['available_seats'] -= 1
+                    with open(f'{PATH}/flights.json', 'w', encoding='utf-8') as file:
+                        json.dump(flights, file, ensure_ascii=False)
+                    return flight
     return None
 
 @app.route('/buy-ticket/<int:id>', methods=["POST"])
@@ -130,20 +131,26 @@ def buy_ticket(id):
         elif server == 3:
             response = requests.get(f'http://127.0.0.1:5002/allocate-seat/{id}', timeout=0.5)
             flight = response.json()
+        
+        if flight:
+            if os.path.exists(f'{PATH}/tickets.json'):
+                with open(f'{PATH}/tickets.json', 'r', encoding='utf-8') as file:
+                    tickets = json.load(file)
+                    tickets.append({"id":tickets[-1]["id"] + 1,"passager_id": current_user.id, "flight_id": id,"place_from": flight["place_from"],"place_to": flight["place_to"] ,"server": server})
+            else:
+                tickets = [{"id": 1 ,"passager_id": current_user.id, "flight_id": id,"place_from": flight["place_from"],"place_to": flight["place_to"] ,"server": server}]
 
-        if os.path.exists(f'{PATH}/tickets.json'):
-            with open(f'{PATH}/tickets.json', 'r', encoding='utf-8') as file:
-                tickets = json.load(file)
-                tickets.append({"id":tickets[-1]["id"] + 1,"passager_id": current_user.id, "flight_id": id,"place_from": flight["place_from"],"place_to": flight["place_to"] ,"server": server})
+            with open(f'{PATH}/tickets.json', 'w', encoding='utf-8') as file:
+                json.dump(tickets, file, ensure_ascii=False)
+            flash(f"Ticket bought successfully!")
         else:
-            tickets = [{"id": 1 ,"passager_id": current_user.id, "flight_id": id,"place_from": flight["place_from"],"place_to": flight["place_to"] ,"server": server}]
-
-        with open(f'{PATH}/tickets.json', 'w', encoding='utf-8') as file:
-            json.dump(tickets, file, ensure_ascii=False)
+            flash("Purchase failed. There are no more available seats.")
 
     except requests.exceptions.Timeout:
+        flash(f"Error when trying to buy ticket, server {server} is not responding")
         print(f"A requisição ao servidor {server} excedeu o tempo limite.")
     except requests.exceptions.RequestException as e:
+        flash(f"Unknown error when trying to buy ticket")
         print(f"Ocorreu um erro na requisição ao servidor {server}: {e}")
     
     return redirect(url_for('index'))

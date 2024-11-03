@@ -18,6 +18,13 @@
     
     <h2 style="text-align: center; margin-top: 50px;">Flights</h2>
     <div style="display: flex; justify-content: center;"></div>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for msg in messages %}
+                    <p style="text-align: center;">{{msg}}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
         <form method="post" action="/filter-flights" style="text-align: center; background-color: #f2f2f2; padding: 20px; border-radius: 10px;">
             <label for="place_from" style="margin-right: 10px;">Place From:</label>
             <input type="text" id="place_from" name="place_from" style="margin-right: 20px; padding: 5px; border-radius: 5px; border: 1px solid #ccc;" required>
