@@ -4,12 +4,13 @@ import requests
 from flask import Flask, request, render_template, redirect, url_for
 from flask_login import UserMixin, login_required, login_user, logout_user, LoginManager, current_user
 
-PORTS = [5000, 5001, 5002]
-FILE_NAME = os.path.basename(__file__)
+# PORTS = [5000, 5001, 5002]
+# FILE_NAME = os.path.basename(__file__)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret1'
 app.config['SESSION_COOKIE_NAME'] = 'session_server1'
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -20,7 +21,6 @@ class User(UserMixin):
         self.name = name
         self.cpf = cpf
     
-
 @login_manager.user_loader
 def load_user(user_id):
     if os.path.exists('../app/data/server1/passagers.json'):
