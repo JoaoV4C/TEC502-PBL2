@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flight List</title>
+    <title>My Flights</title>
     <link rel="stylesheet" href="/static/home.css">
 </head>
 <body>
@@ -16,32 +16,32 @@
         </ul>
     </nav>
     
-    <h2 style="text-align: center; margin-top: 50px;">Flights</h2>
-    <div style="display: flex; justify-content: center;"></div>
-        <form method="get" action="/filter-flights" style="text-align: center; background-color: #f2f2f2; padding: 20px; border-radius: 10px;">
-            <label for="place_from" style="margin-right: 10px;">Place From:</label>
-            <input type="text" id="place_from" name="place_from" style="margin-right: 20px; padding: 5px; border-radius: 5px; border: 1px solid #ccc;" required>
+    <h2 style="text-align: center; margin-top: 50px;">My Flights</h2>
+    <!-- <div style="display: flex; justify-content: center;"></div>
+        <form method="GET" action="/filter-flights" style="text-align: center; margin-top: 20px; background-color: #f2f2f2; padding: 20px; border-radius: 10px;">
+            <label for="place_to" style="margin-right: 10px;">Place From:</label>
+            <input type="text" id="place_from" name="place_from" style="margin-right: 20px; padding: 5px; border-radius: 5px; border: 1px solid #ccc;">
             <label for="place_to" style="margin-right: 10px;">Place To:</label>
-            <input type="text" id="place_to" name="place_to" style="margin-right: 20px; padding: 5px; border-radius: 5px; border: 1px solid #ccc;" required>
+            <input type="text" id="place_to" name="place_to" style="margin-right: 20px; padding: 5px; border-radius: 5px; border: 1px solid #ccc;">
             <button type="submit" style="padding: 5px 10px; border-radius: 5px; background-color: #4CAF50; color: white; border: none;">Submit</button>
         </form>
-    </div>   
+    </div>    -->
     <table>
         <thead>
             <tr>
+                <th>Ticket Number</th>
                 <th>Flight Number</th>
                 <th>From</th>
                 <th>To</th>
-                <th>Action</th>
             </tr>
         </thead>
         <tbody>
             {% for flight in flights %}
             <tr>
                 <td>{{ flight.id }}</td>
+                <td>{{ flight.flight_id }}</td>
                 <td>{{ flight.place_from }}</td>
                 <td>{{ flight.place_to }}</td>
-                <td><button class="buy-button">Buy</button></td>
             </tr>
             {% endfor %}
         </tbody>
