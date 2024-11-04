@@ -1,1 +1,11 @@
-[{"id": 1, "place_from": "Maceió", "place_to": "João Pessoa", "available_seats": 9}, {"id": 2, "place_from": "Maceió", "place_to": "Recife", "available_seats": 10}, {"id": 3, "place_from": "Maceió", "place_to": "Aracaju", "available_seats": 10}, {"id": 4, "place_from": "Aracaju", "place_to": "Maceió", "available_seats": 10}, {"id": 5, "place_from": "Aracaju", "place_to": "Salvador", "available_seats": 8}, {"id": 6, "place_from": "Salvador", "place_to": "Aracaju", "available_seats": 8}, {"id": 7, "place_from": "Salvador", "place_to": "Teresina", "available_seats": 10}, {"id": 8, "place_from": "Salvador", "place_to": "Recife", "available_seats": 10}, {"id": 9, "place_from": "Salvador", "place_to": "Maceió", "available_seats": 0}]
+[
+    {"id": 1, "place_from": "Maceió", "place_to": "João Pessoa", "available_seats": 10},
+    {"id": 2, "place_from": "Maceió", "place_to": "Recife", "available_seats": 10},
+    {"id": 3, "place_from": "Maceió", "place_to": "Aracaju", "available_seats": 10},
+    {"id": 4, "place_from": "Aracaju", "place_to": "Maceió", "available_seats": 10},
+    {"id": 5, "place_from": "Aracaju", "place_to": "Salvador", "available_seats": 10},
+    {"id": 6, "place_from": "Salvador", "place_to": "Aracaju", "available_seats": 10},
+    {"id": 7, "place_from": "Salvador", "place_to": "Teresina", "available_seats": 10},
+    {"id": 8, "place_from": "Salvador", "place_to": "Recife", "available_seats": 10},
+    {"id": 9, "place_from": "Salvador", "place_to": "Maceió", "available_seats": 10}
+]

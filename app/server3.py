@@ -1,7 +1,7 @@
 import os
 import json
 import requests
-from flask import Flask, flash, request, render_template, redirect, url_for
+from flask import Flask, flash, jsonify, request, render_template, redirect, url_for
 from flask_login import UserMixin, login_required, login_user, logout_user, LoginManager, current_user
 
 #Constantes para configuração do servidor
@@ -124,7 +124,6 @@ def filter_flights():
     flights = get_all_flights(place_from, place_to)
     return render_template("home.html", flights = flights)
 
-
 #Rota para exibir os voos comprados pelo usuário logado
 @app.route("/my-flights", methods=["GET"])
 @login_required
@@ -137,60 +136,122 @@ def my_flights():
         my_flights = [flight for flight in flights if flight['passager_id'] == current_user.id]
     return render_template("my-flights.html", flights=my_flights)
 
-#Rota para alocar um assento em um voo
-@app.route('/allocate-seat/<int:id>', methods=["POST"])
-def allocate_seat(id):
+# Função para preparar a transação nos outros servidores
+def prepare_transaction(flight_id, server):
+    response = {}
+    if server == SERVER_NUMBER:
+        request_response = requests.post(f'http://127.0.0.1:{SERVER_PORT}/prepare/{flight_id}', timeout=0.5)
+        response = request_response.json()
+    else :
+        index = OTHER_SERVERS_NUMBER.index(server)
+        response = requests.post(f'http://127.0.0.1:{OTHER_SERVERS_PORTS[index]}/prepare/{flight_id}', timeout=0.5)
+        response = response.json()
+
+    return response['status'] == 'prepared'
+
+# Função para confirmar a transação nos outros servidores
+def commit_transaction(flight_id, server):
+    if server == SERVER_NUMBER:
+        request = requests.post(f'http://127.0.0.1:{SERVER_PORT}/commit/{flight_id}', timeout=0.5)
+        return request.json()["flight"]
+    else:
+        index = OTHER_SERVERS_NUMBER.index(server)
+        request = requests.post(f'http://127.0.0.1:{OTHER_SERVERS_PORTS[index]}/commit/{flight_id}', timeout=0.5)
+        return request.json()["flight"]
+ 
+# Função para abortar a transação nos outros servidores
+def abort_transaction(server):
+    if server == SERVER_NUMBER:
+        abort()
+    else:
+        index = OTHER_SERVERS_NUMBER.index(server)
+        try:
+            requests.post(f'http://127.0.0.1:{OTHER_SERVERS_PORTS[index]}/abort', timeout=0.5)
+        except requests.exceptions.RequestException as e:
+            print(f"Ocorreu um erro na requisição ao servidor {OTHER_SERVERS_NUMBER[index]}: {e}")
+
+# Processo coordenador para comprar um ticket
+@app.route('/buy-ticket/<int:flight_id>', methods=['POST'])
+def buy_ticket(flight_id):
+    server = request.args.get('server', type=int)
+    try:
+        # Fase de Preparação
+        if prepare_transaction(flight_id, server):
+            flight = commit_transaction(flight_id,server)
+            create_ticket(flight_id, flight, server)
+            flash(f"Ticket bought successfully!")
+        else:
+            abort_transaction(server)
+            flash("Purchase failed. There are no more available seats.")
+
+    except requests.exceptions.Timeout:
+        flash(f"Error when trying to buy ticket, server {server} is not responding")
+        print(f"A requisição ao servidor {server} excedeu o tempo limite.")
+
+    except requests.exceptions.RequestException as e:
+        flash(f"Unknown error when trying to buy ticket")
+        print(f"Ocorreu um erro na requisição ao servidor {server}: {e}")
+
+    return redirect(url_for('index'))
+
+def create_ticket(flight_id, flight, server):
+    ticket = {
+        "id": 1,
+        "passager_id": current_user.id,
+        "flight_id": flight_id,
+        "place_from": flight["place_from"],
+        "place_to": flight["place_to"],
+        "server": server
+    }
+    if os.path.exists(f'{PATH}/tickets.json'):
+        with open(f'{PATH}/tickets.json', 'r', encoding='utf-8') as file:
+            tickets = json.load(file)
+            ticket["id"] = tickets[-1]["id"] + 1
+            tickets.append(ticket)
+    else:
+        tickets = [ticket]
+    with open(f'{PATH}/tickets.json', 'w', encoding='utf-8') as file:
+        json.dump(tickets, file, ensure_ascii=False)
+
+# Rota para preparar a transação
+@app.route('/prepare/<int:flight_id>', methods=['POST'])
+def prepare(flight_id):
+    flight = get_flight_by_id(flight_id)
+    if flight and flight['available_seats'] > 0:
+        return jsonify({'status': 'prepared'})
+    else:
+        return jsonify({'status': 'abort'})
+
+# Rota para confirmar a transação
+@app.route('/commit/<int:flight_id>', methods=['POST'])
+def commit(flight_id):
+    if os.path.exists(f'{PATH}/flights.json'):
+        with open(f'{PATH}/flights.json', 'r', encoding='utf-8') as file:
+            flights = json.load(file)
+            
+    flight = next((flight for flight in flights if flight['id'] == flight_id), None)
+    if flight:
+        flight['available_seats'] -= 1
+        with open(f'{PATH}/flights.json', 'w', encoding='utf-8') as file:
+            json.dump(flights, file, ensure_ascii=False)
+        return jsonify({'status': 'committed', "flight": flight})
+    return jsonify({'status': 'error'})
+
+# Rota para abortar a transação
+@app.route('/abort', methods=['POST'])
+def abort():
+    # Não é necessário fazer nada aqui, pois a transação foi abortada
+    return jsonify({'status': 'aborted'})
+
+@app.route('/get_flight_by_id/<int:flight_id>', methods=['GET'])
+def get_flight_by_id(flight_id):
     if os.path.exists(f'{PATH}/flights.json'):
         with open(f'{PATH}/flights.json', 'r', encoding='utf-8') as file:
             flights = json.load(file)
         for flight in flights:
-            #Verifica se o voo possui assentos disponíveis e aloca um assento
-            if flight['id'] == id:
-                if flight['available_seats'] > 0:
-                    flight['available_seats'] -= 1
-                    with open(f'{PATH}/flights.json', 'w', encoding='utf-8') as file:
-                        json.dump(flights, file, ensure_ascii=False)
-                    return flight
+            if flight['id'] == flight_id:
+                return flight
     return []
-
-#Rota para comprar um ticket
-@app.route('/buy-ticket/<int:id>', methods=["POST"])
-@login_required
-def buy_ticket(id):
-    server = request.args.get('server', type=int)
-    try:
-        #Verifica qual o servidor do voo e realiza a solicitação de alocar um assento
-        if server == SERVER_NUMBER:
-            flight = allocate_seat(id)
-        elif server == OTHER_SERVERS_NUMBER[0]:
-            response = requests.post(f'http://127.0.0.1:{OTHER_SERVERS_PORTS[0]}/allocate-seat/{id}', timeout=0.5)
-            flight = response.json()
-        elif server == OTHER_SERVERS_NUMBER[1]:
-            response = requests.post(f'http://127.0.0.1:{OTHER_SERVERS_PORTS[1]}/allocate-seat/{id}', timeout=0.5)
-            flight = response.json()
-        #Verifica se o assento foi alocado com sucesso e cria o ticket
-        if flight:
-            if os.path.exists(f'{PATH}/tickets.json'):
-                with open(f'{PATH}/tickets.json', 'r', encoding='utf-8') as file:
-                    tickets = json.load(file)
-                    tickets.append({"id":tickets[-1]["id"] + 1,"passager_id": current_user.id, "flight_id": id,"place_from": flight["place_from"],"place_to": flight["place_to"] ,"server": server})
-            else:
-                tickets = [{"id": 1 ,"passager_id": current_user.id, "flight_id": id,"place_from": flight["place_from"],"place_to": flight["place_to"] ,"server": server}]
-            #Salva o ticket em um arquivo JSON
-            with open(f'{PATH}/tickets.json', 'w', encoding='utf-8') as file:
-                json.dump(tickets, file, ensure_ascii=False)
-            flash(f"Ticket bought successfully! Flight from {flight['place_from']} to {flight['place_to']}")
-        else:
-            flash("Purchase failed. There are no more available seats.")
-    #Tratamento de exceções
-    except requests.exceptions.Timeout:
-        flash(f"Error when trying to buy ticket, server {server} is not responding")
-        print(f"A requisição ao servidor {server} excedeu o tempo limite.")
-    except requests.exceptions.RequestException as e:
-        flash(f"Unknown error when trying to buy ticket")
-        print(f"Ocorreu um erro na requisição ao servidor {server}: {e}")
-    
-    return redirect(url_for('index'))
 
 #Função para obter os voos dos outros servidores
 def get_other_servers_flights():
