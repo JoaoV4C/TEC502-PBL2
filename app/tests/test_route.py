@@ -4,7 +4,7 @@ import concurrent.futures
 # Configurações
 SERVER_URLS = ['http://127.0.0.1:5000', 'http://127.0.0.1:5001', 'http://127.0.0.1:5002']
 FLIGHT_ID = 1  # ID do voo que será testado
-NUM_REQUESTS = 10  # Número de requisições simultâneas
+NUM_REQUESTS = 1500  # Número de requisições simultâneas
 
 # Função para registrar um usuário
 def register_user(server_url, user_id):
@@ -22,7 +22,7 @@ def authenticate_user(server_url, user_id):
 # Função para enviar uma requisição de compra de passagem
 def buy_ticket(session, server_url, user_id):
     try:
-        response = session.post(f'{server_url}/buy-ticket/{FLIGHT_ID}', params={'server': int(server_url[-1]) + 1}, timeout=1)
+        response = session.post(f'{server_url}/buy-ticket/{FLIGHT_ID}', params={'server': 1}, timeout=1)
         return response.text
     except requests.exceptions.RequestException as e:
         return f"Request failed for user {user_id} on server {server_url}: {e}"
