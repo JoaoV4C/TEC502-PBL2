@@ -20,3 +20,6 @@ Interface: a interface do sistema foi desenvolvida utilizando HTML e CSS, fornec
 *Figura 1. Tela de Login.*
 
 Ambiente virtual com venv: para gerenciar as dependências do projeto, foi utilizado o venv, uma ferramenta que permite criar ambientes virtuais em Python. O uso de venv garante que cada instalação de biblioteca seja isolada, evitando conflitos entre pacotes de diferentes projetos e facilitando a reprodução do ambiente de desenvolvimento por outros membros da equipe ou para testes. Além disso, o ambiente virtual contribui para a segurança e consistência do desenvolvimento, mantendo todas as dependências bem definidas.
+
+Serialização de dados com Json: a serialização com JSON permite que os dados sejam facilmente armazenados e transferidos entre o servidor e o cliente. Neste projeto, dados como informações de voos e reservas foram salvos em arquivos JSON, o que permite que o estado do sistema seja mantido entre reinicializações do servidor e que as operações de leitura e escrita sejam executadas de forma rápida e direta. JSON é especialmente útil para este tipo de projeto por ser leve, de fácil manipulação e amplamente compatível com diversas linguagens de programação.
+
