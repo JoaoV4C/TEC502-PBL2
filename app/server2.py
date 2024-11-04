@@ -286,62 +286,6 @@ def get_all_flights(place_from=None, place_to=None):
     if place_from and place_to:
         flights = [flight for flight in flights if flight['place_from'].lower() == place_from.lower() and flight['place_to'].lower() == place_to.lower()]
     return flights
-
-# #Rota para alocar um assento em um voo
-# @app.route('/allocate-seat/<int:id>', methods=["POST"])
-# def allocate_seat(id):
-#     if os.path.exists(f'{PATH}/flights.json'):
-#         with open(f'{PATH}/flights.json', 'r', encoding='utf-8') as file:
-#             flights = json.load(file)
-#         for flight in flights:
-#             #Verifica se o voo possui assentos disponíveis e aloca um assento
-#             if flight['id'] == id:
-#                 if flight['available_seats'] > 0:
-#                     flight['available_seats'] -= 1
-#                     with open(f'{PATH}/flights.json', 'w', encoding='utf-8') as file:
-#                         json.dump(flights, file, ensure_ascii=False)
-#                     return flight
-#     return []
-
-# #Rota para comprar um ticket
-# @app.route('/buy-ticket/<int:id>', methods=["POST"])
-# @login_required
-# def buy_ticket(id):
-#     server = request.args.get('server', type=int)
-#     try:
-#         #Verifica qual o servidor do voo e realiza a solicitação de alocar um assento
-#         if server == SERVER_NUMBER:
-#             flight = allocate_seat(id)
-#         elif server == OTHER_SERVERS_NUMBER[0]:
-#             response = requests.post(f'http://127.0.0.1:{OTHER_SERVERS_PORTS[0]}/allocate-seat/{id}', timeout=0.5)
-#             flight = response.json()
-#         elif server == OTHER_SERVERS_NUMBER[1]:
-#             response = requests.post(f'http://127.0.0.1:{OTHER_SERVERS_PORTS[1]}/allocate-seat/{id}', timeout=0.5)
-#             flight = response.json()
-#         #Verifica se o assento foi alocado com sucesso e cria o ticket
-#         if flight:
-#             if os.path.exists(f'{PATH}/tickets.json'):
-#                 with open(f'{PATH}/tickets.json', 'r', encoding='utf-8') as file:
-#                     tickets = json.load(file)
-#                     tickets.append({"id":tickets[-1]["id"] + 1,"passager_id": current_user.id, "flight_id": id,"place_from": flight["place_from"],"place_to": flight["place_to"] ,"server": server})
-#             else:
-#                 tickets = [{"id": 1 ,"passager_id": current_user.id, "flight_id": id,"place_from": flight["place_from"],"place_to": flight["place_to"] ,"server": server}]
-#             #Salva o ticket em um arquivo JSON
-#             with open(f'{PATH}/tickets.json', 'w', encoding='utf-8') as file:
-#                 json.dump(tickets, file, ensure_ascii=False)
-#             flash(f"Ticket bought successfully! Flight from {flight['place_from']} to {flight['place_to']}")
-#         else:
-#             flash("Purchase failed. There are no more available seats.")
-#     #Tratamento de exceções
-#     except requests.exceptions.Timeout:
-#         flash(f"Error when trying to buy ticket, server {server} is not responding")
-#         print(f"A requisição ao servidor {server} excedeu o tempo limite.")
-#     except requests.exceptions.RequestException as e:
-#         flash(f"Unknown error when trying to buy ticket")
-#         print(f"Ocorreu um erro na requisição ao servidor {server}: {e}")
-    
-#     return redirect(url_for('index'))
-
     
 if __name__ == '__main__':
     app.run(port=SERVER_PORT, debug=True)
