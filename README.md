@@ -21,3 +21,4 @@ Interface: a interface do sistema foi desenvolvida utilizando HTML e CSS, fornec
   <figcaption style="text-align: center;">Figura 1. Tela de Login.</figcaption>
 </figure>
 
+Ambiente virtual com venv: para gerenciar as dependências do projeto, foi utilizado o venv, uma ferramenta que permite criar ambientes virtuais em Python. O uso de venv garante que cada instalação de biblioteca seja isolada, evitando conflitos entre pacotes de diferentes projetos e facilitando a reprodução do ambiente de desenvolvimento por outros membros da equipe ou para testes. Além disso, o ambiente virtual contribui para a segurança e consistência do desenvolvimento, mantendo todas as dependências bem definidas.
