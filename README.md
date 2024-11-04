@@ -16,9 +16,7 @@ Docker e Virtualização: o uso de contêineres Docker é uma prática comum par
 Flask, Autenticação e Gerenciamento de Sessões: flask é um framework minimalista para desenvolvimento web em Python que permite a construção de APIs e aplicações de forma rápida e eficiente. Neste projeto, Flask foi utilizado para gerenciar as rotas da aplicação e a autenticação dos usuários. A autenticação e o gerenciamento de sessões foram implementados com o auxílio do Login Manager, que, junto com a biblioteca Flask-Login, facilita a criação e o gerenciamento de sessões de usuário. Esse processo é essencial para controlar o acesso às informações de voos e garantir que cada transação seja associada ao usuário autenticado.
 
 Interface: a interface do sistema foi desenvolvida utilizando HTML e CSS, fornecendo uma interface amigável e intuitiva para o usuário. HTML foi utilizado para estruturar o conteúdo da página, enquanto CSS foi aplicado para estilizar e melhorar a usabilidade, criando um ambiente visual mais atraente e coerente. Isso é importante em um sistema de reservas, onde a clareza e a facilidade de navegação são essenciais para a experiência do usuário.
-<figure>
-  <img src="https://github.com/user-attachments/assets/b5252605-d264-4cd8-a7de-884c889b5ecb" alt="Captura de tela do sistema">
-  <figcaption style="text-align: center;">Figura 1. Tela de Login.</figcaption>
-</figure>
+![Captura de tela do sistema](https://github.com/user-attachments/assets/b5252605-d264-4cd8-a7de-884c889b5ecb)
+*Figura 1. Tela de Login.*
 
 Ambiente virtual com venv: para gerenciar as dependências do projeto, foi utilizado o venv, uma ferramenta que permite criar ambientes virtuais em Python. O uso de venv garante que cada instalação de biblioteca seja isolada, evitando conflitos entre pacotes de diferentes projetos e facilitando a reprodução do ambiente de desenvolvimento por outros membros da equipe ou para testes. Além disso, o ambiente virtual contribui para a segurança e consistência do desenvolvimento, mantendo todas as dependências bem definidas.
