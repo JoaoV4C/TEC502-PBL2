@@ -18,6 +18,6 @@ Flask, Autenticação e Gerenciamento de Sessões: flask é um framework minimal
 Interface: a interface do sistema foi desenvolvida utilizando HTML e CSS, fornecendo uma interface amigável e intuitiva para o usuário. HTML foi utilizado para estruturar o conteúdo da página, enquanto CSS foi aplicado para estilizar e melhorar a usabilidade, criando um ambiente visual mais atraente e coerente. Isso é importante em um sistema de reservas, onde a clareza e a facilidade de navegação são essenciais para a experiência do usuário.
 <figure>
   <img src="https://github.com/user-attachments/assets/b5252605-d264-4cd8-a7de-884c889b5ecb" alt="Captura de tela do sistema">
-  <figcaption>Figura 1. Tela de Login.</figcaption>
+  <div><figcaption>Figura 1. Tela de Login.</figcaption></div>
 </figure>
 
