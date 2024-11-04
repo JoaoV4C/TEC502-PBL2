@@ -1,5 +1,5 @@
 [
-    {"id": 1, "place_from": "São Luís", "place_to": "Teresina", "available_seats": 10},
+    {"id": 1, "place_from": "São Luís", "place_to": "Teresina", "available_seats": 1000},
     {"id": 2, "place_from": "São Luís", "place_to": "Fortaleza", "available_seats": 10},
     {"id": 3, "place_from": "São Luís", "place_to": "Natal", "available_seats": 10},
     {"id": 4, "place_from": "Teresina", "place_to": "São Luís", "available_seats": 10},
