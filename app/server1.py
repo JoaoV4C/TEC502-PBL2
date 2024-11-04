@@ -1,5 +1,6 @@
 import os
 import json
+import threading
 import requests
 from flask import Flask, flash, jsonify, request, render_template, redirect, url_for
 from flask_login import UserMixin, login_required, login_user, logout_user, LoginManager, current_user
@@ -22,6 +23,9 @@ app.config['SESSION_COOKIE_NAME'] = f'session_server{SERVER_NUMBER}'
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
+# Lock para garantir a segurança das operações de leitura e escrita
+lock = threading.Lock()
 
 #Classe User para armazenar os dados do usuário logado
 class User(UserMixin):
@@ -162,13 +166,11 @@ def commit_transaction(flight_id, server):
 # Função para abortar a transação nos outros servidores
 def abort_transaction(server):
     if server == SERVER_NUMBER:
-        abort()
+        requests.post(f'http://127.0.0.1:{SERVER_PORT}/abort', timeout=0.5)
     else:
         index = OTHER_SERVERS_NUMBER.index(server)
-        try:
-            requests.post(f'http://127.0.0.1:{OTHER_SERVERS_PORTS[index]}/abort', timeout=0.5)
-        except requests.exceptions.RequestException as e:
-            print(f"Ocorreu um erro na requisição ao servidor {OTHER_SERVERS_NUMBER[index]}: {e}")
+        requests.post(f'http://127.0.0.1:{OTHER_SERVERS_PORTS[index]}/abort', timeout=0.5)
+
 
 # Processo coordenador para comprar um ticket
 @app.route('/buy-ticket/<int:flight_id>', methods=['POST'])
@@ -216,6 +218,8 @@ def create_ticket(flight_id, flight, server):
 # Rota para preparar a transação
 @app.route('/prepare/<int:flight_id>', methods=['POST'])
 def prepare(flight_id):
+    lock.acquire()
+    print("Prepare - Is locked?(Should be True): ",lock.locked())
     flight = get_flight_by_id(flight_id)
     if flight and flight['available_seats'] > 0:
         return jsonify({'status': 'prepared'})
@@ -234,6 +238,8 @@ def commit(flight_id):
         flight['available_seats'] -= 1
         with open(f'{PATH}/flights.json', 'w', encoding='utf-8') as file:
             json.dump(flights, file, ensure_ascii=False)
+        lock.release()
+        print("Commit - Is locked?(Should be False): ",lock.locked())
         return jsonify({'status': 'committed', "flight": flight})
     return jsonify({'status': 'error'})
 
@@ -241,6 +247,8 @@ def commit(flight_id):
 @app.route('/abort', methods=['POST'])
 def abort():
     # Não é necessário fazer nada aqui, pois a transação foi abortada
+    lock.release()
+    print("Abort - Is locked?(Should be False): ",lock.locked())
     return jsonify({'status': 'aborted'})
 
 @app.route('/get_flight_by_id/<int:flight_id>', methods=['GET'])
