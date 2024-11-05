@@ -28,7 +28,41 @@ Nesta seção, falaremos sobre a metodologia adotada para o desenvolvimento do s
 
 Etapa de Desenvolvimento: durante a etapa de desenvolvimento, utilizamos a metodologia PBL (Problem-Based Learning) para auxiliar na compreensão e solução dos desafios do sistema de gerenciamento de voos. Essa abordagem permitiu que a turma compartilhasse suas ideias para encontrar a melhor forma de desenvolver o código. Um dos principais desafios foi o tratamento de concorrência, no qual escolhemos implementar o algoritmo Two-Phase Commit (2PC). Esse algoritmo se mostrou adequado para garantir a integridade das transações em um ambiente distribuído, permitindo que as operações sejam realizadas de forma confiável, mesmo em situações de falha ou inconsistência. Com o uso do PBL, conseguimos explorar diferentes alternativas e chegar a uma solução eficaz para o desenvolvimento do sistema.
 
+Comunicação entre Servidores:  para tratar possíveis questões de concorrência optamos por usar o algoritmo Two-Phase Commit (2PC). Esse algoritmo envolve alguns passos para confirmar uma transação distribuída de forma segura, garantindo que todos os servidores envolvidos na transação cheguem ao mesmo estado. Desenvolvemos três funções principais para realizar o controle transacional: prepare_transaction; commit_transaction; abort_transaction. A função prepare_transaction é responsável por enviar solicitações ‘POST’ para todos os servidores envolvidos, indicando que a transação está em fase de preparação. Caso todos os servidores respondam que estão “preparados”, a transação pode seguir para a próxima etapa, caso contrário, a transação é abortada. A função commit_transaction é acionada quando todos os servidores confirmam a fase de preparação, após essa confirmação, envia uma solicitação para cada servidor finalizar a transação, subtraindo o assento do voo e registrando o ticket localmente. A abort_transaction é acionada caso um dos servidores retorne uma resposta negativa na fase de preaparação, enviando uma solicitação para que todos os servidores abortem a transação e retornem ao estado inicial.
+![Imagem do WhatsApp de 2024-11-04 à(s) 22 37 21_48e57a60](https://github.com/user-attachments/assets/12caf10c-b02e-47b6-adb8-03a2585c52cb)
+*Figura 2. Funções.*
+
+Implementação de Rotas para Comunicação Entre os Servidores: criamos as rotas /prepare, /commit e /abort em cada servidor. Essas rotas recebem as requisições para tratar as operações de preparação, confirmação e aborto de uma transação. A rota /prepare verifica se o voo possui assentos disponíveis e responde com "prepared" ou "abort", dependendo do caso. A rota /commit confirma a reserva subtraindo um assento, e a rota /abort desbloqueia a transação, caso seja necessário abortar.
+![Imagem do WhatsApp de 2024-11-04 à(s) 22 37 35_86b0e2f8](https://github.com/user-attachments/assets/757f7e28-a8c4-479c-905e-462c4c9162f9)
+*Figura 3. Rotas.*
+
+
 Ferramentas e Tecnologias Utilizadas: para o desenvolvimento do sistema, utilizamos o Visual Studio Code como ambiente de desenvolvimento integrado (IDE), que nos proporcionou uma interface amigável e recursos avançados para facilitar a codificação. A estrutura do servidor foi construída utilizando o Flask, um framework web leve e flexível que permitiu criar a API de forma rápida e eficiente. Além disso, empregamos bibliotecas como Flask-Login para gerenciar autenticação de usuários, requests para facilitar a comunicação entre o cliente e o servidor, e threading para implementar o suporte a múltiplos clientes simultaneamente, garantindo que o sistema operasse de maneira eficiente em um ambiente de concorrência. Essas ferramentas e tecnologias foram essenciais para a criação do sistema.
 
 Formatação e Tratamento de Dados: para a formatação e troca de dados entre o cliente e o servidor, utilizamos o formato JSON, que facilitou a serialização dos dados em um padrão leve e amplamente compatível. Com o uso de JSON, conseguimos estruturar e interpretar dados de maneira padronizada, garantindo a consistência das informações durante o envio e recebimento entre os componentes do sistema. Além disso, como a interface do sistema foi desenvolvida em HTML, não foi necessário enviar parâmetros continuamente entre cliente e servidor, uma vez que grande parte das informações pôde ser gerenciada diretamente no front-end. Isso simplificou a comunicação e reduziu a carga de dados trafegando na aplicação.
-![login](https://github.com/user-attachments/assets/d7b77507-9006-4761-9231-3cb09a21c103) *Figura 2. Exemplo html.*
+![login](https://github.com/user-attachments/assets/d7b77507-9006-4761-9231-3cb09a21c103) 
+*Figura 4. Exemplo html.*
+
+
+# Testes e Resultados
+Nesta seção, apresentaremos os resultados obtidos durante o desenvolvimento do sistema, assim como os testes realizados para garantir seu funcionamento correto e a consistência dos dados em um ambiente distribuído. Foram realizados diversos testes para validar a comunicação entre servidores e a integridade das transações utilizando o protocolo Two-Phase Commit (2PC). Tivemos como objetivo verificar se o sistema respondia adequadamente em cenários de sucesso e falha, garantindo que, em situações onde a transação não pudesse ser completada, todos os servidores revertessem para o estado original sem inconsistências.
+Para os testes ficarem o mais perto do mundo real, simulamos um ambiente de alta concorrência e múltiplas requisições simultâneas. Separamos o funcionamento  dos principais pontos em 4 tópicos que explicaremos brevemente:
+Gerenciamento de Threads: utilizamos o ThreadPoolExecutor para controlar a criação e execução das threads, optamos por esse caminho para facilitar a execução de várias tarefas em paralelo. O executor gerencia o ciclo de vida das threads de forma automática, evitando a necessidade de criar e destruir as threads manualmente. Isso ajuda na eficiência e reduzir o overhead do sistema, pois as threads são reutilizadas para diferentes tarefas conforme necessário.
+
+Número de Workers: o parâmetro max_workers define o número máximo de threads que o executor pode usar simultaneamente. Definimos o valor para 1500 para testar o sistema com um volume grande de requisições.
+
+Submissão de Tarefas: cada requisição de compra de passagem é enviada ao executor através do método submit(), que aceita uma função e seus parâmetros.Ele retorna um objeto Future que representa a tarefa que está em execução. Ao enviar as requisições, conseguimos executar cada requisição de forma independente e simultânea, o que simula múltiplos usuários tentando acessar o sistema ao mesmo tempo.
+
+Acompanhamento de Resultados: com os objetos Future retornados pelo método submit(), conseguimos monitorar o status de cada requisição individualmente. Podemos verificar se uma tarefa foi concluída, acessar seu resultado ou capturar erros que possam ocorrer durante a execução. Ao usar o concurrente.futures.as_completed(), conseguimos iterar sobre as requisições à medida que são concluídas, o que nos permite analisar o desempenho e o comportamento do sistema em tempo real.
+
+![Imagem do WhatsApp de 2024-11-04 à(s) 22 36 26_2e2e712e](https://github.com/user-attachments/assets/de39e1e0-8c36-4d0f-82eb-0f7a8971a80e)
+*Figura 5. Rotas do 2PC na parte do teste de compra"
+
+
+Os resultados dos testes foram satisfatórios, confirmando a eficiência do sistema em um ambiente de alta concorrência. Esses resultados mostram que o sistema é capaz de sustentar operações em um cenário com grande volume de usuários (1500 nos testes), cumprindo os requisitos de concorrência esperados para um sistema distribuído.
+
+
+# Conclusão
+O desenvolvimento deste sistema de comunicação entre servidores foi concluído com sucesso. Durante o processo, utilizamos ferramentas que simplificaram e ajudaram na solução do problema, como o protocolo Two-Phase Commit (2PC) para garantir a consistência nas transações de compra de passagens em um ambiente concorrente, e o Flask para a criação e gerenciamento de endpoints web. Foram realizados testes, cujos resultados atenderam às expectativas e confirmaram a confiabilidade e eficácia do sistema. Com a finalização do relatório e uma documentação detalhada do código, concluímos que o sistema está pronto para uso, oferecendo uma boa solução e bem documentada para atender às necessidades dos usuários.
+
+
