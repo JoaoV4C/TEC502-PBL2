@@ -61,3 +61,8 @@ Acompanhamento de Resultados: com os objetos Future retornados pelo método subm
 
 Os resultados dos testes foram satisfatórios, confirmando a eficiência do sistema em um ambiente de alta concorrência. Esses resultados mostram que o sistema é capaz de sustentar operações em um cenário com grande volume de usuários (1500 nos testes), cumprindo os requisitos de concorrência esperados para um sistema distribuído.
 
+
+# Conclusão
+O desenvolvimento deste sistema de comunicação entre servidores foi concluído com sucesso. Durante o processo, utilizamos ferramentas que simplificaram e ajudaram na solução do problema, como o protocolo Two-Phase Commit (2PC) para garantir a consistência nas transações de compra de passagens em um ambiente concorrente, e o Flask para a criação e gerenciamento de endpoints web. Foram realizados testes, cujos resultados atenderam às expectativas e confirmaram a confiabilidade e eficácia do sistema. Com a finalização do relatório e uma documentação detalhada do código, concluímos que o sistema está pronto para uso, oferecendo uma boa solução e bem documentada para atender às necessidades dos usuários.
+
+
