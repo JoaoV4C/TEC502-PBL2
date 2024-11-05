@@ -40,4 +40,21 @@ Implementação de Rotas para Comunicação Entre os Servidores: criamos as rota
 Ferramentas e Tecnologias Utilizadas: para o desenvolvimento do sistema, utilizamos o Visual Studio Code como ambiente de desenvolvimento integrado (IDE), que nos proporcionou uma interface amigável e recursos avançados para facilitar a codificação. A estrutura do servidor foi construída utilizando o Flask, um framework web leve e flexível que permitiu criar a API de forma rápida e eficiente. Além disso, empregamos bibliotecas como Flask-Login para gerenciar autenticação de usuários, requests para facilitar a comunicação entre o cliente e o servidor, e threading para implementar o suporte a múltiplos clientes simultaneamente, garantindo que o sistema operasse de maneira eficiente em um ambiente de concorrência. Essas ferramentas e tecnologias foram essenciais para a criação do sistema.
 
 Formatação e Tratamento de Dados: para a formatação e troca de dados entre o cliente e o servidor, utilizamos o formato JSON, que facilitou a serialização dos dados em um padrão leve e amplamente compatível. Com o uso de JSON, conseguimos estruturar e interpretar dados de maneira padronizada, garantindo a consistência das informações durante o envio e recebimento entre os componentes do sistema. Além disso, como a interface do sistema foi desenvolvida em HTML, não foi necessário enviar parâmetros continuamente entre cliente e servidor, uma vez que grande parte das informações pôde ser gerenciada diretamente no front-end. Isso simplificou a comunicação e reduziu a carga de dados trafegando na aplicação.
-![login](https://github.com/user-attachments/assets/d7b77507-9006-4761-9231-3cb09a21c103) *Figura 4. Exemplo html.*
+![login](https://github.com/user-attachments/assets/d7b77507-9006-4761-9231-3cb09a21c103) 
+*Figura 4. Exemplo html.*
+
+
+# Testes e Resultados
+Nesta seção, apresentaremos os resultados obtidos durante o desenvolvimento do sistema, assim como os testes realizados para garantir seu funcionamento correto e a consistência dos dados em um ambiente distribuído. Foram realizados diversos testes para validar a comunicação entre servidores e a integridade das transações utilizando o protocolo Two-Phase Commit (2PC). Tivemos como objetivo verificar se o sistema respondia adequadamente em cenários de sucesso e falha, garantindo que, em situações onde a transação não pudesse ser completada, todos os servidores revertessem para o estado original sem inconsistências.
+Para os testes ficarem o mais perto do mundo real, simulamos um ambiente de alta concorrência e múltiplas requisições simultâneas. Separamos o funcionamento  dos principais pontos em 4 tópicos que explicaremos brevemente:
+Gerenciamento de Threads: utilizamos o ThreadPoolExecutor para controlar a criação e execução das threads, optamos por esse caminho para facilitar a execução de várias tarefas em paralelo. O executor gerencia o ciclo de vida das threads de forma automática, evitando a necessidade de criar e destruir as threads manualmente. Isso ajuda na eficiência e reduzir o overhead do sistema, pois as threads são reutilizadas para diferentes tarefas conforme necessário.
+
+Número de Workers: o parâmetro max_workers define o número máximo de threads que o executor pode usar simultaneamente. Definimos o valor para 1500 para testar o sistema com um volume grande de requisições.
+
+Submissão de Tarefas: cada requisição de compra de passagem é enviada ao executor através do método submit(), que aceita uma função e seus parâmetros.Ele retorna um objeto Future que representa a tarefa que está em execução. Ao enviar as requisições, conseguimos executar cada requisição de forma independente e simultânea, o que simula múltiplos usuários tentando acessar o sistema ao mesmo tempo.
+
+Acompanhamento de Resultados: com os objetos Future retornados pelo método submit(), conseguimos monitorar o status de cada requisição individualmente. Podemos verificar se uma tarefa foi concluída, acessar seu resultado ou capturar erros que possam ocorrer durante a execução. Ao usar o concurrente.futures.as_completed(), conseguimos iterar sobre as requisições à medida que são concluídas, o que nos permite analisar o desempenho e o comportamento do sistema em tempo real.
+
+![Imagem do WhatsApp de 2024-11-04 à(s) 22 36 26_2e2e712e](https://github.com/user-attachments/assets/de39e1e0-8c36-4d0f-82eb-0f7a8971a80e)
+*Figura 5. Rotas do 2PC na parte do teste de compra"
+
