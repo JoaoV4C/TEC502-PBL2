@@ -58,3 +58,6 @@ Acompanhamento de Resultados: com os objetos Future retornados pelo método subm
 ![Imagem do WhatsApp de 2024-11-04 à(s) 22 36 26_2e2e712e](https://github.com/user-attachments/assets/de39e1e0-8c36-4d0f-82eb-0f7a8971a80e)
 *Figura 5. Rotas do 2PC na parte do teste de compra"
 
+
+Os resultados dos testes foram satisfatórios, confirmando a eficiência do sistema em um ambiente de alta concorrência. Esses resultados mostram que o sistema é capaz de sustentar operações em um cenário com grande volume de usuários (1500 nos testes), cumprindo os requisitos de concorrência esperados para um sistema distribuído.
+
