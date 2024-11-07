@@ -7,9 +7,9 @@ from flask_login import UserMixin, login_required, login_user, logout_user, Logi
 
 #Constantes para configuração do servidor
 SERVER_NUMBER = 1
-SERVER_PORT = 5000
+SERVER_PORT = 9000
 OTHER_SERVERS_NUMBER = [2, 3]
-OTHER_SERVERS_PORTS = [5001, 5002]
+OTHER_SERVERS_PORTS = [9001, 9002]
 
 #Caminho para os arquivos JSON
 PATH = f"../app/data/server{SERVER_NUMBER}/"
