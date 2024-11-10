@@ -288,4 +288,4 @@ def get_all_flights(place_from=None, place_to=None):
     return flights
    
 if __name__ == '__main__':
-    app.run(port=SERVER_PORT, debug=True)
+    app.run(host = "0.0.0.0", port=SERVER_PORT, debug=True)
