@@ -5,16 +5,16 @@ FROM python:3.9-slim
 WORKDIR /app
 
 # Copie o arquivo de requisitos para o contêiner
-COPY requirements.txt .
+COPY requirements.txt /app/
 
 # Instale as dependências
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Copie o restante do código da aplicação para o contêiner
-COPY . .
+COPY .. /app/
 
 # Exponha a porta que a aplicação Flask usará
-EXPOSE 5000
+EXPOSE 9001
 
 # Comando para rodar a aplicação
-CMD ["python", "app/server1.py"]
+CMD ["python3", "server2.py"]

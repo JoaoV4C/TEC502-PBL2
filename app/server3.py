@@ -11,6 +11,12 @@ SERVER_PORT = 9002
 OTHER_SERVERS_NUMBER = [1, 2]
 OTHER_SERVERS_PORTS = [9000, 9001]
 
+#URL para o localhost
+# URL = ["127.0.0.1", "127.0.0.1", "127.0.0.1"]
+
+#URL para o Docker
+URL = ["server3", "server1", "server2"]	
+
 #Caminho para os arquivos JSON
 PATH = f"../app/data/server{SERVER_NUMBER}/"
 
@@ -144,11 +150,11 @@ def my_flights():
 def prepare_transaction(flight_id, server):
     response = {}
     if server == SERVER_NUMBER:
-        request_response = requests.post(f'http://127.0.0.1:{SERVER_PORT}/prepare/{flight_id}', timeout=0.5)
+        request_response = requests.post(f'http://{URL[0]}:{SERVER_PORT}/prepare/{flight_id}', timeout=0.5)
         response = request_response.json()
     else :
         index = OTHER_SERVERS_NUMBER.index(server)
-        response = requests.post(f'http://127.0.0.1:{OTHER_SERVERS_PORTS[index]}/prepare/{flight_id}', timeout=0.5)
+        response = requests.post(f'http://{URL[index + 1]}:{OTHER_SERVERS_PORTS[index]}/prepare/{flight_id}', timeout=0.5)
         response = response.json()
 
     return response['status'] == 'prepared'
@@ -156,20 +162,20 @@ def prepare_transaction(flight_id, server):
 # Função para confirmar a transação nos outros servidores
 def commit_transaction(flight_id, server):
     if server == SERVER_NUMBER:
-        request = requests.post(f'http://127.0.0.1:{SERVER_PORT}/commit/{flight_id}', timeout=0.5)
+        request = requests.post(f'http://{URL[0]}:{SERVER_PORT}/commit/{flight_id}', timeout=0.5)
         return request.json()["flight"]
     else:
         index = OTHER_SERVERS_NUMBER.index(server)
-        request = requests.post(f'http://127.0.0.1:{OTHER_SERVERS_PORTS[index]}/commit/{flight_id}', timeout=0.5)
+        request = requests.post(f'http://{URL[index + 1]}:{OTHER_SERVERS_PORTS[index]}/commit/{flight_id}', timeout=0.5)
         return request.json()["flight"]
 
 # Função para abortar a transação nos outros servidores
 def abort_transaction(server):
     if server == SERVER_NUMBER:
-        requests.post(f'http://127.0.0.1:{SERVER_PORT}/abort', timeout=0.5)
+        requests.post(f'http://{URL[0]}:{SERVER_PORT}/abort', timeout=0.5)
     else:
         index = OTHER_SERVERS_NUMBER.index(server)
-        requests.post(f'http://127.0.0.1:{OTHER_SERVERS_PORTS[index]}/abort', timeout=0.5)
+        requests.post(f'http://{URL[index + 1]}:{OTHER_SERVERS_PORTS[index]}/abort', timeout=0.5)
 
 
 # Processo coordenador para comprar um ticket
@@ -267,7 +273,7 @@ def get_other_servers_flights():
     #Realiza a requisição para os outros servidores e adiciona os voos na lista de resposta
     for i in range(2):
         try:
-            request_response = requests.get(f'http://127.0.0.1:{OTHER_SERVERS_PORTS[i]}/flights', timeout=0.5)
+            request_response = requests.get(f'http://{URL[i + 1]}:{OTHER_SERVERS_PORTS[i]}/flights', timeout=0.5)
             request_response.raise_for_status()  # Levanta uma exceção para códigos de status HTTP de erro
             response.extend(request_response.json())
         except requests.exceptions.Timeout:
@@ -286,6 +292,6 @@ def get_all_flights(place_from=None, place_to=None):
     if place_from and place_to:
         flights = [flight for flight in flights if flight['place_from'].lower() == place_from.lower() and flight['place_to'].lower() == place_to.lower()]
     return flights
-   
+    
 if __name__ == '__main__':
     app.run(host = "0.0.0.0", port=SERVER_PORT, debug=True)

@@ -1,0 +1,43 @@
+services:
+  server1:
+    build:
+      context: .
+      dockerfile: Dockerfile.server1 # Dockerfile para o server1
+    container_name: server1  # Nome do container
+    ports:
+      - "9000:9000"  # Porta do server1
+    stdin_open: true
+    tty: true
+    command: python3 server1.py  # Executa o server1
+    networks:
+      - vendepass-network
+
+  server2:
+    build:
+      context: .
+      dockerfile: Dockerfile.server2 # Dockerfile para o server2
+    container_name: server2  # Nome do container
+    ports:
+      - "9001:9001"  # Porta do server2
+    stdin_open: true
+    tty: true
+    command: python3 server2.py  # Executa o server2
+    networks:
+      - vendepass-network
+
+  server3:
+    build:
+      context: .
+      dockerfile: Dockerfile.server3 # Dockerfile para o server_c
+    container_name: server3  # Nome do container
+    ports:
+      - "9002:9002"  # Porta do server_c
+    stdin_open: true
+    tty: true
+    command: python3 server3.py  # Executa o server_c
+    networks:
+      - vendepass-network
+
+networks:
+  vendepass-network:
+    driver: bridge
