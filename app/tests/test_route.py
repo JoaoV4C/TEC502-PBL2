@@ -2,7 +2,7 @@ import requests
 import concurrent.futures
 
 # Configurações
-SERVER_URLS = ['http://127.0.0.1:5000', 'http://127.0.0.1:5001', 'http://127.0.0.1:5002']
+SERVER_URLS = ['http://127.0.0.1:9000', 'http://127.0.0.1:9001', 'http://127.0.0.1:9002']
 FLIGHT_ID = 1  # ID do voo que será testado
 NUM_REQUESTS = 1500  # Número de requisições simultâneas
 
